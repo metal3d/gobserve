@@ -23,7 +23,11 @@ type Conf struct {
 
 // NewConf returns a *Conf.
 func NewConf() *Conf {
-	c := Conf{}
+	c := Conf{
+		Command: "go run *.go",
+		Ignore:  []string{"*.*~"},
+		Watch:   []string{"."},
+	}
 
 	// checking configuration
 	if _, err := os.Stat("gobserve.yml"); err == nil {
@@ -79,7 +83,6 @@ func isIgnored(file string) bool {
 	counter := 0
 	for _, f := range conf.Ignore {
 		ok, err := filepath.Match(f, file)
-		log.Println(file, "is ignored:", ok)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -87,6 +90,7 @@ func isIgnored(file string) bool {
 			counter++
 		}
 	}
+	log.Println(file, "is ignored:", counter > 0)
 	return counter > 0
 }
 

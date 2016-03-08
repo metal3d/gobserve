@@ -11,6 +11,8 @@ Gobserve uses yaml file to configure
 - command to launch
 
 
+**By default**, gobserve launches commande "`go run *.go`", ignores "`*.*~`" and watch current directory.
+
 # Launching
 
 Simply call `gobserve` in a directory. You may use a configuration file (yaml format) to configure the watcher.
