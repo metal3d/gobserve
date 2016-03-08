@@ -1,9 +1,15 @@
 
-VERSION=$(shell cat .goxc.json | python -c 'import json,sys;o=json.load(sys.stdin);print o["PackageVersion"]' )
+GETVERSION:=cat .goxc.json | python -c 'import json,sys;o=json.load(sys.stdin);print o["PackageVersion"]' 
+VERSION:=$(shell $(GETVERSION))
 FPM=~/bin/fpm
 
 version:
 	@echo $(VERSION)
+
+
+newtag:
+	goxc bump
+	git tag -a `$(GETVERSION)`
 
 all: goxc rpm
 
