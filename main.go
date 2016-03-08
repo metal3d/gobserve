@@ -63,7 +63,22 @@ func gorun() {
 	log.Printf("Starting: %v", args)
 
 	if len(args) > 1 {
-		cmd = exec.Command(args[0], args[1:]...)
+
+		params := []string{}
+
+		for _, a := range args[1:] {
+			l, err := filepath.Glob(a)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if len(l) > 0 {
+				params = append(params, l...)
+			} else {
+				params = append(params, a)
+			}
+		}
+
+		cmd = exec.Command(args[0], params...)
 	} else {
 		cmd = exec.Command(args[0])
 	}
