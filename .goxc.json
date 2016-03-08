@@ -1,5 +1,8 @@
 {
 	"ArtifactsDest": "build",
+	"TasksExclude": [
+		"go-install"
+	],
 	"Arch": "amd64",
 	"BuildConstraints": "linux,darwin,freebsd,windows",
 	"PackageVersion": "0.0.1",
