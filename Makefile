@@ -6,12 +6,11 @@ FPM=~/bin/fpm
 version:
 	@echo $(VERSION)
 
-
 newtag:
 	goxc bump
 	git tag -a `$(GETVERSION)`
 
-all: goxc rpm
+dist: goxc rpm
 
 goxc:
 	goxc
