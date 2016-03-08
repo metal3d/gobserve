@@ -11,7 +11,6 @@ goxc:
 	goxc
 
 rpm: cleantmp
-	mkdir -p _rpm/usr/bin
 	mkdir .tmp
 	cd .tmp && \
 		mkdir -p usr/bin usr/share/docs/gobserve/ && \
