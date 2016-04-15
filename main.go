@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"gopkg.in/yaml.v1"
@@ -51,10 +52,18 @@ var (
 func gorun() {
 
 	if cmd != nil {
-		log.Println("Killing...")
-		cmd.Process.Signal(os.Kill)
+		log.Println("Killing...", cmd.Process.Pid)
+		// cmd.Process.Kill()
+		// err := cmd.Process.Signal(syscall.SIGTERM)
+		//err := cmd.Process.Release()
+
+		pgid, err := syscall.Getpgid(cmd.Process.Pid)
+		if err == nil {
+			syscall.Kill(-pgid, 15) // note the minus sign
+		}
 		cmd.Wait()
-		log.Println("Killed")
+
+		//cmd.Wait()
 		cmd = nil
 	}
 
@@ -85,12 +94,13 @@ func gorun() {
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	err := cmd.Start()
+
 	if err != nil {
 		log.Println(err)
 	}
-	cmd.Wait()
-
+	log.Println("PID", cmd.Process.Pid)
 }
 
 // isIgnored return true if the file is in ignore list.
@@ -111,22 +121,22 @@ func isIgnored(file string) bool {
 
 // doRefresh calls gorun() after one second when files are changed.
 func doRefresh(watcher *fsnotify.Watcher) {
-	files := []string{}
+	files := map[string]bool{}
 	for {
 		select {
 		case <-time.Tick(time.Second * 1):
-			for _, file := range files {
+			for file, _ := range files {
 				if !isIgnored(file) {
 					go gorun()
-					files = []string{}
+					files = make(map[string]bool)
 					break
 				}
 			}
-			files = []string{}
+			files = make(map[string]bool)
 
 		case event := <-watcher.Events:
 			log.Printf("%+v\n", event)
-			files = append(files, event.Name)
+			files[event.Name] = true
 			log.Println(files)
 
 		case err := <-watcher.Errors:
