@@ -19,6 +19,8 @@ Simply call `gobserve` in a directory. You may use a configuration file (yaml fo
 
 # YAML conf
 
+Fill a file named "gobserve.yml" in the current directory.
+
 An example to relaunch a golang server:
 
 ```yaml
