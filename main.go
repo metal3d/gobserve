@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -48,9 +50,8 @@ var (
 	conf = NewConf()
 )
 
-// gorun launches command.
-func gorun() {
-
+// killCmd kills the current cmd
+func killCmd() {
 	if cmd != nil {
 		log.Println("Killing...", cmd.Process.Pid)
 		// cmd.Process.Kill()
@@ -66,6 +67,12 @@ func gorun() {
 		//cmd.Wait()
 		cmd = nil
 	}
+}
+
+// gorun launches command.
+func gorun() {
+
+	killCmd()
 
 	args := strings.Split(conf.Command, " ")
 
@@ -169,5 +176,11 @@ func main() {
 	}
 
 	// wait until TERM signal
-	<-make(chan bool)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
+	// Block until a signal is received.
+	s := <-c
+	fmt.Println("Got signal:", s)
+	killCmd()
 }
